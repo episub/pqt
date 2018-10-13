@@ -15,8 +15,11 @@ type NullDate struct {
 
 // Scan implements the Scanner interface.
 func (nd *NullDate) Scan(value interface{}) error {
+	if value == nil {
+		nd.Valid = false
+		return nil
+	}
 	log.Printf("NullDate type: %s", reflect.TypeOf(value))
-	panic("Not implemented")
 	//nd.Time, nd.Valid = value.(time.Time)
 	return nil
 }
