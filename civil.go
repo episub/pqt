@@ -2,8 +2,10 @@ package pqt
 
 import (
 	"database/sql/driver"
+	"fmt"
 	"log"
 	"reflect"
+	"time"
 
 	"cloud.google.com/go/civil"
 )
@@ -19,8 +21,18 @@ func (nd *NullDate) Scan(value interface{}) error {
 		nd.Valid = false
 		return nil
 	}
-	log.Printf("NullDate type: %s", reflect.TypeOf(value))
-	//nd.Time, nd.Valid = value.(time.Time)
+
+	ts := reflect.TypeOf(value).String()
+	if ts != "time.Time" {
+		return fmt.Errorf("Unexpected type for NullDate of %s", ts)
+	}
+
+	v, _ := value.(time.Time)
+	nd.Date = civil.DateOf(v)
+	nd.Valid = true
+
+	log.Printf("Time: %s", v.Format(time.RFC3339))
+
 	return nil
 }
 
