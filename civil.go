@@ -26,6 +26,11 @@ func (d *Date) Scan(value interface{}) error {
 	return nil
 }
 
+// UTC Returns the date as a time in UTC
+func (d Date) UTC() time.Time {
+	return d.Date.In(time.UTC)
+}
+
 // Value implements the driver Valuer interface.
 func (d Date) Value() (driver.Value, error) {
 	return d.Date.String(), nil
