@@ -12,6 +12,19 @@ type Date struct {
 	civil.Date
 }
 
+// AddMonths Increases or decreases the month by provided amount
+func (d *Date) AddMonths(months int) {
+	d.Month += time.Month(months)
+	for d.Month > 12 {
+		d.Year++
+		d.Month -= 12
+	}
+	for d.Month < 1 {
+		d.Year--
+		d.Month += 12
+	}
+}
+
 // Scan implements the Scanner interface.
 func (d *Date) Scan(value interface{}) error {
 	var when time.Time
