@@ -2,11 +2,14 @@ package pqt
 
 import (
 	"database/sql/driver"
+	"encoding/json"
 	"fmt"
 	"time"
 
 	"cloud.google.com/go/civil"
 )
+
+const DateFormat = "2006-01-02"
 
 type Date struct {
 	civil.Date
@@ -74,4 +77,54 @@ func (nd NullDate) Value() (driver.Value, error) {
 		return nil, nil
 	}
 	return nd.Date.String(), nil
+}
+
+func (nd NullDate) MarshalJSON() ([]byte, error) {
+	if nd.Valid {
+		return json.Marshal(nd.Date.String())
+	}
+	return nil, nil
+}
+
+func (nd *NullDate) UnmarshalJSON(data []byte) error {
+	if data == nil || len(data) == 0 || string(data) == "\"\"" {
+		// Leave as invalid
+		return nil
+	}
+
+	var dateStr string
+	err := json.Unmarshal(data, &dateStr)
+	if err != nil {
+		return err
+	}
+	parsed, err := civil.ParseDate(dateStr)
+	if err != nil {
+		return err
+	}
+	nd.Date = parsed
+	nd.Valid = true
+	return nil
+}
+
+func (nd NullDate) String() string {
+	if nd.Valid {
+		return nd.Date.String()
+	}
+
+	return ""
+}
+
+func (nd *NullDate) UnmarshalText(data []byte) error {
+	if data == nil || len(data) == 0 || string(data) == "\"\"" {
+		// Leave as invalid
+		return nil
+	}
+
+	parsed, err := civil.ParseDate(string(data))
+	if err != nil {
+		return err
+	}
+	nd.Date = parsed
+	nd.Valid = true
+	return nil
 }
