@@ -83,12 +83,13 @@ func (nd NullDate) MarshalJSON() ([]byte, error) {
 	if nd.Valid {
 		return json.Marshal(nd.Date.String())
 	}
-	return nil, nil
+	return []byte("null"), nil
 }
 
 func (nd *NullDate) UnmarshalJSON(data []byte) error {
-	if data == nil || len(data) == 0 || string(data) == "\"\"" {
+	if data == nil || len(data) == 0 || string(data) == "\"\"" || string(data) == "null" {
 		// Leave as invalid
+		nd.Valid = false
 		return nil
 	}
 
